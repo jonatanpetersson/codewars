@@ -1,67 +1,168 @@
 // Codewars solutions
 
-// Battleship field validator - 3kyu
-function validateBattlefield(field) {
-  const ShipSizeAmountDict = {
-    4: 1,
-    3: 2,
-    2: 3,
-    1: 4,
-  }
-  
-  const evaluateShip = (y, x, shipSize) => {
-    shipSize++;
-    const top = { y: y === 0 ? 0 : y - 1, x };
-    const right = { x: x === 9 ? 9 : x + 1, y };
-    const bottom = { y: y === 9 ? 9 : y + 1, x };
-    const left = { x: x === 0 ? 0 : x - 1, y };
+// The builder of things - 3kyu
+class Thing {
+  constructor(name) {
+    this.name = name;
 
-    [top, left, bottom, right].forEach((n) => {
-      if (field[n.y][n.x]) {
-        field[n.y][n.x] = 0;
-        shipSize = evaluateShip(n.y, n.x, shipSize);
-      }
-    })
-    return shipSize;
-  }
-  
-  field.forEach((row, y) => { 
-    row.forEach((col, x) => {
-      if (field[y][x]) {
-        field[y][x] = 0;
-        let shipSize = 0;
-        shipSize = evaluateShip(y, x, shipSize);
-        if (ShipSizeAmountDict[shipSize]) {
-          ShipSizeAmountDict[shipSize]--;
-        }
-      }
-    })
-  });
+    this.is_a_person;
+    this.is_a_man;
+    this.is_a_woman;
 
-  return Object.values(ShipSizeAmountDict).every((shipAmount) => shipAmount === 0);
+    this.parent_of;
+
+    this.legs;
+
+    this.head;
+
+
+    
+    this.is_a = new Proxy(this, {
+      get: (target, prop) => {
+        Reflect.set(target, `is_a_${prop}`, true);
+      },
+    });
+
+    this.is_not_a = new Proxy(this, {
+      get: (target, prop) => {
+        Reflect.set(target, `is_a_${prop}`, false);
+        Reflect.set(target, `is_not_a_${prop}`, true);
+      },
+    });
+
+    this.is_the = new Proxy(this, {
+      get: (_, prop) => {
+        return new Proxy(this, {
+          get: (_, nextProp) => {
+            Reflect.set(this, prop, nextProp);
+          },
+        });
+      },
+    });
+  }
+}
+
+// old
+class Thing {
+  constructor(name) {
+    this.name = name;
+
+    this.is_a = new Proxy(this, {
+      get: (target, prop) => {
+        Reflect.set(target, `is_a_${prop}`, true);
+      },
+    });
+
+    this.is_not_a = new Proxy(this, {
+      get: (target, prop) => {
+        Reflect.set(target, `is_a_${prop}`, false);
+        Reflect.set(target, `is_not_a_${prop}`, true);
+      },
+    });
+
+    this.is_the = new Proxy(this, {
+      get: (_, prop) => {
+        return new Proxy(this, {
+          get: (_, nextProp) => {
+            Reflect.set(this, prop, nextProp);
+          },
+        });
+      },
+    });
+  }
+}
+
+// Sudoku Solution Validator - 4kyu
+function validSolution(board) {
+  const getBaseArray = () => [[], [], [], [], [], [], [], [], []];
+  const addToSquaresPerRow = (x, y, rowSquares) => {
+    if (x >= 0 && x < 3) squares[rowSquares[0]].push(board[y][x]);
+    if (x >= 3 && x < 6) squares[rowSquares[1]].push(board[y][x]);
+    if (x >= 6 && x < 9) squares[rowSquares[2]].push(board[y][x]);
+  };
+
+  const squares = getBaseArray();
+  const columns = getBaseArray();
+  const rows = getBaseArray();
+
+  for (let y = 0; y < 9; y++) {
+    rows[y] = board[y];
+
+    for (let x = 0; x < 9; x++) {
+      columns[x].push(board[y][x]);
+
+      if (y >= 0 && y < 3) addToSquaresPerRow(x, y, [0, 1, 2]);
+      if (y >= 3 && y < 6) addToSquaresPerRow(x, y, [3, 4, 5]);
+      if (y >= 6 && y < 9) addToSquaresPerRow(x, y, [6, 7, 8]);
+    }
+  }
+
+  const collectionOfNumbers = [...squares, ...rows, ...columns].map((n) =>
+    n.sort((x, y) => x - y).join('')
+  );
+
+  return collectionOfNumbers.every((n) => n === '123456789');
+}
+
+// First non-repeating character - 5kyu
+function firstNonRepeatingLetter(s) {
+  const arr = s.toLowerCase().split('');
+  for (let i = 0; i < s.length; i++) {
+    if (arr.filter((a) => a === arr[i]).length === 1) {
+      return s[i];
+    }
+  }
+  return '';
+}
+
+// Delete occurrences of an element if it occurs more than n times - 6kyu
+function deleteNth(arr, n) {
+  return arr.reduce(
+    (acc, curr) =>
+      [...acc, curr].filter((val) => val === curr).length > n
+        ? acc
+        : [...acc, curr],
+    []
+  );
+}
+
+// Shortened
+// const deleteNth = (arr, n) =>
+//   arr.reduce(
+//     (a, b) => ([...a, b].filter((c) => c === b).length > n ? a : [...a, b]),
+//     []
+//   );
+
+// Sort the odd - 6kyu
+function sortArray(array) {
+  const isOdd = (val) => val % 2 !== 0;
+  const odd = array.filter(isOdd).sort((x, y) => x - y);
+  return array.map((val) => (isOdd(val) ? odd.shift() : val));
 }
 
 // Nesting Structure Comparison - 4kyu
 Array.prototype.sameStructureAs = function (other) {
-  
   const serializeStructure = (array, positionX, positionY, string) => {
     string += `x:${positionX}y:${positionY}, `;
 
     array.forEach((element, nextPositionX) => {
-      string += Array.isArray(element) 
-      ? serializeStructure(element, nextPositionX, positionY + 1, string)
-      : 'false, ';
+      string += Array.isArray(element)
+        ? serializeStructure(element, nextPositionX, positionY + 1, string)
+        : 'false, ';
     });
 
     return string;
-  }
+  };
 
-  const thisArrayStructure = Array.isArray(this) ? serializeStructure(this, 0, 0, '') : false;
-  const otherArrayStructure = Array.isArray(other) ? serializeStructure(other, 0, 0, '') : false;
+  const thisArrayStructure = Array.isArray(this)
+    ? serializeStructure(this, 0, 0, '')
+    : false;
+  const otherArrayStructure = Array.isArray(other)
+    ? serializeStructure(other, 0, 0, '')
+    : false;
 
   return thisArrayStructure === otherArrayStructure;
 };
-
 
 // Greed is Good - kyu
 function score(values) {
