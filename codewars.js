@@ -1,5 +1,64 @@
 // Codewars solutions
 
+// The Hunger Games - Zoo Disaster! - 5kyu
+var whoEatsWho = function (zoo) {
+  zoo = zoo.split(",");
+  const originalZoo = [...zoo];
+
+  const foodChain = {
+    antelope: { grass: "grass" },
+    bear: {
+      "big-fish": "big-fish",
+      bug: "bug",
+      chicken: "chicken",
+      cow: "cow",
+      leaves: "leaves",
+      sheep: "sheep",
+    },
+    "big-fish": { "little-fish": "little-fish" },
+    bug: { leaves: "leaves" },
+    chicken: { bug: "bug" },
+    cow: { grass: "grass" },
+    fox: { chicken: "chicken", sheep: "sheep" },
+    giraffe: { leaves: "leaves" },
+    lion: { antelope: "antelope", cow: "cow" },
+    panda: { leaves: "leaves" },
+    sheep: { grass: "grass" },
+  };
+
+  const meals = [];
+
+  const eating = (animal, neighbourAnimal, toTheLeft, index) => {
+    meals.push(animal + " eats " + neighbourAnimal);
+    zoo.splice(toTheLeft ? index - 1 : index + 1, 1);
+    eatingCircle();
+  };
+
+  const eatingCircle = () => {
+    for (let i = 0; i < zoo.length; i++) {
+      const animal = zoo[i];
+      const leftAnimal = zoo[i - 1];
+      const rightAnimal = zoo[i + 1];
+
+      // Optional chaining is no supported in codewars it seems.
+      if (foodChain[animal] && foodChain[animal][leftAnimal]) {
+        eating(animal, leftAnimal, true, i);
+        break;
+      }
+
+      if (foodChain[animal] && foodChain[animal][rightAnimal]) {
+        eating(animal, rightAnimal, false, i);
+        break;
+      }
+    }
+  };
+  eatingCircle();
+  return [originalZoo.join(","), ...meals, zoo.join(",")];
+};
+
+const res = whoEatsWho("fox,bug,chicken,grass,sheep");
+console.log(res);
+
 // The builder of things - 3kyu
 class Thing {
   constructor(name) {
@@ -15,8 +74,6 @@ class Thing {
 
     this.head;
 
-
-    
     this.is_a = new Proxy(this, {
       get: (target, prop) => {
         Reflect.set(target, `is_a_${prop}`, true);
@@ -43,34 +100,34 @@ class Thing {
 }
 
 // old
-class Thing {
-  constructor(name) {
-    this.name = name;
+// class Thing {
+//   constructor(name) {
+//     this.name = name;
 
-    this.is_a = new Proxy(this, {
-      get: (target, prop) => {
-        Reflect.set(target, `is_a_${prop}`, true);
-      },
-    });
+//     this.is_a = new Proxy(this, {
+//       get: (target, prop) => {
+//         Reflect.set(target, `is_a_${prop}`, true);
+//       },
+//     });
 
-    this.is_not_a = new Proxy(this, {
-      get: (target, prop) => {
-        Reflect.set(target, `is_a_${prop}`, false);
-        Reflect.set(target, `is_not_a_${prop}`, true);
-      },
-    });
+//     this.is_not_a = new Proxy(this, {
+//       get: (target, prop) => {
+//         Reflect.set(target, `is_a_${prop}`, false);
+//         Reflect.set(target, `is_not_a_${prop}`, true);
+//       },
+//     });
 
-    this.is_the = new Proxy(this, {
-      get: (_, prop) => {
-        return new Proxy(this, {
-          get: (_, nextProp) => {
-            Reflect.set(this, prop, nextProp);
-          },
-        });
-      },
-    });
-  }
-}
+//     this.is_the = new Proxy(this, {
+//       get: (_, prop) => {
+//         return new Proxy(this, {
+//           get: (_, nextProp) => {
+//             Reflect.set(this, prop, nextProp);
+//           },
+//         });
+//       },
+//     });
+//   }
+// }
 
 // Sudoku Solution Validator - 4kyu
 function validSolution(board) {
@@ -98,21 +155,21 @@ function validSolution(board) {
   }
 
   const collectionOfNumbers = [...squares, ...rows, ...columns].map((n) =>
-    n.sort((x, y) => x - y).join('')
+    n.sort((x, y) => x - y).join("")
   );
 
-  return collectionOfNumbers.every((n) => n === '123456789');
+  return collectionOfNumbers.every((n) => n === "123456789");
 }
 
 // First non-repeating character - 5kyu
 function firstNonRepeatingLetter(s) {
-  const arr = s.toLowerCase().split('');
+  const arr = s.toLowerCase().split("");
   for (let i = 0; i < s.length; i++) {
     if (arr.filter((a) => a === arr[i]).length === 1) {
       return s[i];
     }
   }
-  return '';
+  return "";
 }
 
 // Delete occurrences of an element if it occurs more than n times - 6kyu
@@ -148,17 +205,17 @@ Array.prototype.sameStructureAs = function (other) {
     array.forEach((element, nextPositionX) => {
       string += Array.isArray(element)
         ? serializeStructure(element, nextPositionX, positionY + 1, string)
-        : 'false, ';
+        : "false, ";
     });
 
     return string;
   };
 
   const thisArrayStructure = Array.isArray(this)
-    ? serializeStructure(this, 0, 0, '')
+    ? serializeStructure(this, 0, 0, "")
     : false;
   const otherArrayStructure = Array.isArray(other)
-    ? serializeStructure(other, 0, 0, '')
+    ? serializeStructure(other, 0, 0, "")
     : false;
 
   return thisArrayStructure === otherArrayStructure;
