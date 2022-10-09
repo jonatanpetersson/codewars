@@ -56,9 +56,6 @@ var whoEatsWho = function (zoo) {
   return [originalZoo.join(","), ...meals, zoo.join(",")];
 };
 
-const res = whoEatsWho("fox,bug,chicken,grass,sheep");
-console.log(res);
-
 // The builder of things - 3kyu
 class Thing {
   constructor(name) {
